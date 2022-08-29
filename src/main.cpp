@@ -1,7 +1,8 @@
+#include "raylib.h"
 #include <raylib-cpp.hpp>
 
 int main() {
-    
+
     // Initialization
     int screenWidth = 800;
     int screenHeight = 450;
@@ -15,6 +16,10 @@ int main() {
     while (!w.ShouldClose()) // Detect window close button or ESC key
     {
         // Update
+
+        if (IsKeyDown(KEY_Q)) {
+            w.Close();
+        }
 
         // TODO: Update your variables here
 

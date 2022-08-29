@@ -1,0 +1,13 @@
+-L lib/Linux 
+-lRaylib 
+-lGL 
+-lM 
+-lPthread 
+-lDl 
+-lRt 
+-lX11
+-MMD 
+-MP 
+-c 
+-std=c++17 
+--include-directory=include
