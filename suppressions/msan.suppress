@@ -1,0 +1,4 @@
+fun:xcb_connect_to_display_with_auth_info
+src:/usr/lib/libX11.so.*
+stc:**X11*
+fun:_XimOpenIM

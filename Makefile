@@ -105,7 +105,7 @@ compile_asan: clean
 	$(MAKE) $(target) CXX=clang++ CXXFLAGS="-fsanitize=address -O1 -g -fno-omit-frame-pointer" LINKFLAGS="-g -fsanitize=address"
 
 compile_msan: clean
-	$(MAKE) $(target) CXX=clang++ CXXFLAGS="-fsanitize=memory -fPIE -pie -g" LINKFLAGS="-g -fsanitize=memory"
+	$(MAKE) $(target) CXX=clang++ CXXFLAGS="-fsanitize=memory -fPIE -pie -O1 -g -fno-omit-frame-pointer -fsanitize-memory-track-origins -fsanitize-ignorelist=suppressions/msan.suppress" LINKFLAGS="-g -fsanitize=memory -fsanitize-ignorelist=suppressions/msan.suppress"
 
 asan: compile_asan execute
 
@@ -113,7 +113,4 @@ msan: compile_msan execute
 
 valgrind: clean
 	$(MAKE) $(target) CXX=clang++ CXXFLAGS="-g" LINKFLAGS="-g"
-	valgrind --tool=memcheck --leak-check=full --track-origins=yes -v $(target) $(ARGS)
-	
-# clang++ -MMD -MP -c -std=c++17 -I include -g src/main.cpp -o bin/main.o -fsanitize=address -O1 -g -fno-omit-frame-pointer
-# clang++  bin/main.o -o bin/app -L lib/Linux -l raylib -l GL -l m -l pthread -l dl -l rt -l X11 -fsanitize=address -O1 -g -fno-omit-frame-pointer
+	valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes --suppressions=./valgrind.suppress $(target) $(ARGS)

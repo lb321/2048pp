@@ -132,3 +132,9 @@ $ make CXX=g++
 ```console
 > mingw32-make CXX=g++
 ```
+
+### AddressSaniter
+If AddressSaniter reports memory leaks in the X11 library execute the following command to suppress these leaks (because there's nothing we can do about it):
+```command
+export LSAN_OPTIONS=suppressions=suppressions/asan.suppress
+````
