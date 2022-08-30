@@ -77,13 +77,13 @@ include: submodules
 
 # Build the raylib static library file and copy it into lib
 lib: submodules
-	cd vendor/raylib/src $(THEN) "$(MAKE)" PLATFORM=PLATFORM_DESKTOP GRAPHICS=GRAPHICS_API_OPENGL_11
+	cd vendor/raylib/src $(THEN) "$(MAKE)" PLATFORM=PLATFORM_DESKTOP GRAPHICS=GRAPHICS_API_OPENGL_11 -B
 	$(MKDIR) $(call platformpth, lib/$(platform))
 	$(call COPY,vendor/raylib/$(libGenDir),lib/$(platform),libraylib.a)
 
 # Link the program and create the executable
 $(target): $(objects)
-	$(CXX) $(objects) -o $(target) $(linkFlags)
+	$(CXX) $(objects) -o $(target) $(linkFlags) $(LINKFLAGS)
 
 # Add all rules from dependency files
 -include $(depends)
@@ -100,3 +100,20 @@ execute:
 # Clean up all relevant files
 clean:
 	$(RM) $(call platformpth, $(buildDir)/*)
+
+compile_asan: clean
+	$(MAKE) $(target) CXX=clang++ CXXFLAGS="-fsanitize=address -O1 -g -fno-omit-frame-pointer" LINKFLAGS="-g -fsanitize=address"
+
+compile_msan: clean
+	$(MAKE) $(target) CXX=clang++ CXXFLAGS="-fsanitize=memory -fPIE -pie -g" LINKFLAGS="-g -fsanitize=memory"
+
+asan: compile_asan execute
+
+msan: compile_msan execute
+
+valgrind: clean
+	$(MAKE) $(target) CXX=clang++ CXXFLAGS="-g" LINKFLAGS="-g"
+	valgrind --tool=memcheck --leak-check=full --track-origins=yes -v $(target) $(ARGS)
+	
+# clang++ -MMD -MP -c -std=c++17 -I include -g src/main.cpp -o bin/main.o -fsanitize=address -O1 -g -fno-omit-frame-pointer
+# clang++  bin/main.o -o bin/app -L lib/Linux -l raylib -l GL -l m -l pthread -l dl -l rt -l X11 -fsanitize=address -O1 -g -fno-omit-frame-pointer

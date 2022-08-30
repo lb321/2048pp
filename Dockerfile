@@ -5,6 +5,8 @@ RUN apk update && \
     apk --update add \
         g++ \
         clang-dev \
+        llvm \
+        compiler-rt \
         alsa-lib-dev \
         mesa-dev \
         libx11-dev \

@@ -9,5 +9,6 @@
 -MMD 
 -MP 
 -c 
+-g
 -std=c++17 
 --include-directory=include
