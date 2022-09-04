@@ -21,7 +21,6 @@
  ********************************************************************************************/
 
 #include "Vector2.hpp"
-#include "game/GameBoard.hpp"
 #include "raylib-cpp.hpp"
 #include "raylib.h"
 #include "screen/GameScreen.h"

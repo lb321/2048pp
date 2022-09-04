@@ -4,9 +4,9 @@
 class Tile {
 
 public:
-  Tile(int value): _value {value} {}
-  Tile(): Tile(nullptr, nullptr, nullptr, nullptr){}
-  Tile(const Tile *left, const Tile *right, const Tile *up, const Tile *down);
+  Tile(): Tile(0) {}
+  Tile(int value): Tile(value, -1) {}
+  Tile(int value, int index): _value {value} , _index {index} { }
   ~Tile();
   Tile(const Tile &other) = delete;
   Tile(Tile &&) = delete;
@@ -15,17 +15,12 @@ public:
   const int& getValue() const;
   void setValue(const int &value);
 
-  void setLeft(const Tile* tile);
-  void setRight(const Tile* tile);
-  void setUp(const Tile* tile);
-  void setDown(const Tile* tile);
+  const int& getIndex() const;
+  void setIndex(const int& i);
 
 private:
   int _value;
-  const Tile *_left;
-  const Tile *_right;
-  const Tile *_up;
-  const Tile *_down;
+  int _index;
 };
 
 #endif // __TEST_TILE_H__

@@ -2,7 +2,7 @@
 #include "raylib.h"
 #include <iostream>
 
-GameScreen::GameScreen(raylib::Window& window) : _window(&window) { }
+GameScreen::GameScreen(raylib::Window& window) : _window(&window), _random{} { }
 
 GameScreen::~GameScreen() { }
 
@@ -10,13 +10,13 @@ void GameScreen::update(float delta) {
     if (IsKeyPressed(KEY_DOWN)) {
         _gameboard.move_down();
 
-        if (_gameboard.hasEmptyTiles()) {
-            std::vector<Tile*>& emptyTiles = _gameboard.getEmptyTiles();
-            Tile* tile = emptyTiles.at(GetRandomValue(0, emptyTiles.size() - 1));
-            tile->setValue(2);
-            emptyTiles.erase(std::remove(emptyTiles.begin(), emptyTiles.end(), tile));
-            std::cout << emptyTiles.size() << " empty tiles" << std::endl;
-        }
+        _gameboard.fillRandomEmptyTile(_random);
+    } else if (IsKeyPressed(KEY_LEFT)) {
+        _gameboard.move_left();
+        _gameboard.fillRandomEmptyTile(_random);
+    } else if (IsKeyPressed(KEY_RIGHT)) {
+        _gameboard.move_right();
+        _gameboard.fillRandomEmptyTile(_random);
     }
  }
 

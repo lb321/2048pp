@@ -2,6 +2,7 @@
 #define GAMESCREEN_H
 
 #include "raylib.h"
+#include "util/Random.h"
 #pragma once
 
 #include "game/GameBoard.hpp"
@@ -16,12 +17,13 @@ class GameScreen {
     void draw();
 
   private:
-    GameBoard<4, 4> _gameboard;
-    Vector2 _boardSize {4, 4};
+    GameBoard<8, 8> _gameboard;
+    Vector2 _boardSize {8, 8};
     raylib::Color _foreground {0, 68, 130};
     raylib::Color _textColor {raylib::Color::DarkGray()};
 
     raylib::Window* _window;
+    Random _random;
 };
 
 #endif
