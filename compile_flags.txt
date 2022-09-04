@@ -1,3 +1,5 @@
+-xc++
+-Wall
 -L lib/Linux 
 -lRaylib 
 -lGL 
@@ -12,3 +14,4 @@
 -g
 -std=c++17 
 --include-directory=include
+--include-directory=headers

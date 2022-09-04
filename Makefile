@@ -15,7 +15,7 @@ target := $(buildDir)/$(executable)
 sources := $(call rwildcard,src/,*.cpp)
 objects := $(patsubst src/%, $(buildDir)/%, $(patsubst %.cpp, %.o, $(sources)))
 depends := $(patsubst %.o, %.d, $(objects))
-compileFlags := -std=c++17 -I include
+compileFlags := -std=c++17 -I include -I headers
 linkFlags = -L lib/$(platform) -l raylib
 
 # Check for Windows
@@ -113,4 +113,4 @@ msan: compile_msan execute
 
 valgrind: clean
 	$(MAKE) $(target) CXX=clang++ CXXFLAGS="-g" LINKFLAGS="-g"
-	valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes --suppressions=./valgrind.suppress $(target) $(ARGS)
+	valgrind --tool=memcheck --leak-check=full --show-leak-kinds=all --track-origins=yes --suppressions=./suppressions/valgrind.suppress $(target) $(ARGS)

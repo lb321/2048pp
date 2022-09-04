@@ -14,3 +14,12 @@
     obj:*/ld-musl-*
     ...
 }
+
+{
+    libGL_reachable
+    Memcheck:Leak
+    match-leak-kinds: reachable
+    ...
+    obj:*/libGL.so*
+    ...
+}
