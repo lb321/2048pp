@@ -15,12 +15,12 @@
 template <std::size_t x_size, std::size_t y_size>
 class GameBoard {
 #define BOARD_SIZE x_size* y_size
-#define INDEX_OF_TILE(x, y) x + y * x_size
+#define INDEX_OF_TILE(x, y) x + y* x_size
   public:
     GameBoard() {
         int index {0};
-        std::for_each(_tiles.begin(), _tiles.end(), [this, &index](Tile& tile) { 
-            _emptyTiles.push_back(&tile); 
+        std::for_each(_tiles.begin(), _tiles.end(), [this, &index](Tile& tile) {
+            _emptyTiles.push_back(&tile);
             tile.setIndex(index++);
         });
         std::cout << "Board size = " << BOARD_SIZE << std::endl;
@@ -35,65 +35,72 @@ class GameBoard {
 
     const int& getValue(const std::size_t& x, const std::size_t& y) const { return _tiles[x * x_size + y].getValue(); }
 
-    void put(const std::size_t& x_pos, const std::size_t& y_pos, const int& value) { _tiles[x_pos * x_size + y_pos].setValue(value); }
+    void put(const std::size_t& x_pos, const std::size_t& y_pos, const int& value) { _tiles[x_pos + y_pos * x_size].setValue(value); }
 
     void move_down() {
         for (size_t x = 0; x < x_size; x++) {
-            for (size_t y = 0; y < y_size - 1; y++) {
-                Tile& tile = get(x, y);
-                Tile& below = get(x, y + 1);
+            Tile* previousNotNilTile {nullptr};
+            Tile* firstNilTile {nullptr};
 
-                if (tile.getValue() == 0)
-                    continue;
-                else if (below.getValue() == tile.getValue()) {
-                    below.setValue(below.getValue() * 2);
-                    tile.setValue(0);
-                    _emptyTiles.push_back(&tile);
-                    break;
-                } else if (below.getValue() == 0) {
-                    below.setValue(tile.getValue());
-                    tile.setValue(0);
-                    _emptyTiles.push_back(&tile);
-                    _emptyTiles.erase(std::remove(_emptyTiles.begin(), _emptyTiles.end(), &below));
-                    break;
-                }
+            for (int y = y_size - 1; y >= 0; y--) {
+                move(x, y, firstNilTile, previousNotNilTile, -1 * x_size);
             }
         }
     }
-    void move_up();
-    void move_vertical();
 
-    void move_left() {
-        // combine
-        for (size_t y = 0; y < y_size; y++) {
-            for (size_t x = 0; x < x_size - 1; x++) {
-                Tile& tile = get(x, y);
-                Tile& rightTile = get(x + 1, y);
+    void move_up() {
+        for (size_t x = 0; x < x_size; x++) {
+            Tile* previousNotNilTile {nullptr};
+            Tile* firstNilTile {nullptr};
 
-                if (tile.getValue() == 0)
-                    continue;
-                else if (rightTile.getValue() == tile.getValue()) {
-                    tile.setValue(tile.getValue() * 2);
-                    rightTile.setValue(0);
-                    _emptyTiles.push_back(&rightTile);
-                }
+            for (size_t y = 0; y < y_size; y++) {
+                move(x, y, firstNilTile, previousNotNilTile, +x_size);
             }
         }
+    }
 
-        // move left
+    void move(const size_t& x, const size_t& y, Tile*& firstNilTile, Tile*& previousNotNilTile, const int& prevIndex) {
+        Tile& tile = get(x, y);
+
+        if (tile.getValue() == 0) {
+            if (firstNilTile == nullptr)
+                firstNilTile = &tile;
+        } else if (previousNotNilTile == nullptr) {
+            if (firstNilTile != nullptr) { // geen tile met een waarde, maar wel eentje met 0, dus verplaats onze waarde naar de 0
+                setTileValue(firstNilTile, tile.getValue());
+                setTileValue(&tile, 0);
+                previousNotNilTile = firstNilTile;
+                firstNilTile = &_tiles[firstNilTile->getIndex() + prevIndex];
+            } else { // geen tile voor ons om heen te verplaatsen
+                previousNotNilTile = &tile;
+            }
+        } else if (previousNotNilTile->getValue() == tile.getValue()) { // merge met de andere
+            previousNotNilTile->setValue(tile.getValue() * 2);
+            tile.setValue(0);
+            _emptyTiles.push_back(&tile);
+            previousNotNilTile = nullptr;
+
+            if (firstNilTile == nullptr)
+                firstNilTile = &tile;
+        } else if (firstNilTile != nullptr) {
+            setTileValue(firstNilTile, tile.getValue());
+            setTileValue(&tile, 0);
+            previousNotNilTile = firstNilTile;
+            firstNilTile = &_tiles[previousNotNilTile->getIndex() + prevIndex];
+        } else {
+            previousNotNilTile = &tile;
+        }
+    }
+
+    void move_left() {
         for (size_t y = 0; y < y_size; y++) {
-            for (size_t x = x_size - 1; x > 0; x--) {
-                Tile& tile = get(x, y);
-                Tile& leftTile = get(x - 1, y);
+            // the previous tile which does not have a value of 0
+            Tile* previousNotNilTile {nullptr};
+            Tile* firstNilTile {nullptr};
 
-                if (tile.getValue() == 0)
-                    continue;
-                else if (leftTile.getValue() == 0) {
-                    leftTile.setValue(tile.getValue());
-                    _emptyTiles.erase(std::remove(_emptyTiles.begin(), _emptyTiles.end(), &leftTile));
-                    tile.setValue(0);
-                    _emptyTiles.push_back(&tile);
-                }
+            // van links naar rechts
+            for (size_t x = 0; x < x_size; x++) { // deze loop is omgedraait
+                move(x, y, firstNilTile, previousNotNilTile, 1);
             }
         }
     }
@@ -106,35 +113,7 @@ class GameBoard {
 
             // van rechts naar links
             for (int x = x_size - 1; x >= 0; x--) {
-                Tile& tile = get(x, y);
-
-                if (tile.getValue() == 0) {
-                    if (firstNilTile == nullptr)
-                        firstNilTile = &tile;
-                } else if (previousNotNilTile == nullptr) {
-                    if (firstNilTile != nullptr) { // geen tile met een waarde, maar wel eentje met 0, dus verplaats onze waarde naar de 0
-                        setTileValue(firstNilTile, tile.getValue());
-                        setTileValue(&tile, 0);
-                        previousNotNilTile = firstNilTile;
-                        firstNilTile = &_tiles[firstNilTile->getIndex() - 1];
-                    } else { // geen tile voor ons om heen te verplaatsen
-                        previousNotNilTile = &tile;
-                    }
-                } else if (previousNotNilTile->getValue() == tile.getValue()) { //merge met de andere
-                    previousNotNilTile->setValue(tile.getValue() * 2);
-                    tile.setValue(0);
-                    _emptyTiles.push_back(&tile);
-                    previousNotNilTile = nullptr;
-
-                    if (firstNilTile == nullptr) firstNilTile = &tile;
-                } else if (firstNilTile != nullptr) {
-                    setTileValue(firstNilTile, tile.getValue());
-                    setTileValue(&tile, 0);
-                    previousNotNilTile = firstNilTile;
-                    firstNilTile = &_tiles[previousNotNilTile->getIndex() - 1];
-                } else {
-                    previousNotNilTile = &tile;
-                }
+                move(x, y, firstNilTile, previousNotNilTile, -1);
             }
         }
     }

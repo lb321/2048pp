@@ -9,13 +9,15 @@ GameScreen::~GameScreen() { }
 void GameScreen::update(float delta) {
     if (IsKeyPressed(KEY_DOWN)) {
         _gameboard.move_down();
-
         _gameboard.fillRandomEmptyTile(_random);
     } else if (IsKeyPressed(KEY_LEFT)) {
         _gameboard.move_left();
         _gameboard.fillRandomEmptyTile(_random);
     } else if (IsKeyPressed(KEY_RIGHT)) {
         _gameboard.move_right();
+        _gameboard.fillRandomEmptyTile(_random);
+    } else if (IsKeyPressed(KEY_UP)) {
+        _gameboard.move_up();
         _gameboard.fillRandomEmptyTile(_random);
     }
  }
